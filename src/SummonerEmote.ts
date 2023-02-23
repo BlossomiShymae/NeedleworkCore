@@ -1,15 +1,19 @@
-
 export default class SummonerEmote {
+  id: number;
+  name: string;
+  inventoryIcon: string;
+  description: string;
+
   constructor({
     id, name, inventoryIcon, description
-  }) {
+  }: IEmoteData) {
     this.id = id;
     this.name = name;
     this.inventoryIcon = inventoryIcon;
     this.description = description;
   }
 
-  static fromJson(data) {
+  static fromJson(data: IEmoteData) {
     if (data == null) throw new Error("data must be defined");
 
     const emote = new SummonerEmote(data);
@@ -34,8 +38,8 @@ export default class SummonerEmote {
     for (const category of subsplit) {
       if (!category.includes(".png")) {
         const regex = new RegExp("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
-        const formatted = regex.match(category);
-        if (formatted.length > 0) categories.push(formatted[0]);
+        const formatted = category.match(regex);
+        if (formatted != null) categories.push(formatted[0]);
       }
     }
 
@@ -53,6 +57,13 @@ export default class SummonerEmote {
   }
 
   get isIcon() {
-    return this.uri() == null || this.uri() == "" ? false : true;
+    return this.uri == null || this.uri == "" ? false : true;
   }
+}
+
+interface IEmoteData {
+  id: number;
+  name: string;
+  inventoryIcon: string;
+  description: string;
 }

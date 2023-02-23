@@ -1,10 +1,11 @@
 import axios from "axios";
-import SummonerEmote from "./SummonerEmote.js";
+import type { ResponseType } from "axios";
+import SummonerEmote from "./SummonerEmote";
 
 export default class CommunityDragonApi {
-  constructor() {
-    this.url = "https://raw.communitydragon.org";
+  private url: string = "https://raw.communitydragon.org";
 
+  constructor() {
     this.getRequest = this.getRequest.bind(this);
     this.listSummonerEmotes = this.listSummonerEmotes.bind(this);
   }
@@ -13,23 +14,17 @@ export default class CommunityDragonApi {
     return "/latest/plugins/rcp-be-lol-game-data/global/default";
   }
 
-  async getSummonerEmoteImageBytes(uri) {
-    if (uri == null) throw new Error("Id must be defined");
-
+  async getSummonerEmoteImageBytes(uri: string) {
     const bytes = await this.getRequest(this.defaultUri + uri, "arraybuffer");
     return bytes;
   }
 
-  async listSummonerEmotes(localeIdentifier) {
-    if (localeIdentifier == null) throw new Error("Language tag must be defined ('default', 'en_us'...)");
-
+  async listSummonerEmotes(localeIdentifier: string) {
     const data = await this.getRequest(`/latest/plugins/rcp-be-lol-game-data/global/${localeIdentifier}/v1/summoner-emotes.json`);
-    return data.map((x) => SummonerEmote.fromJson(x));
+    return data.map((x: any) => SummonerEmote.fromJson(x));
   }
 
-  async getRequest(url, type) {
-    if (url == null) throw new Error("Url must be defined");
-
+  async getRequest(url: string, type?: ResponseType) {
     const res = await axios.get(encodeURI(this.url + url), {
       responseType: type ?? "json"
     });
