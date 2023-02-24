@@ -2,6 +2,9 @@ import axios from "axios";
 import type { ResponseType } from "axios";
 import SummonerEmote from "./SummonerEmote";
 
+/**
+ * An API for fetching data from CommunityDragon.
+ */
 export default class CommunityDragonApi {
   private url: string = "https://raw.communitydragon.org";
 
