@@ -11,6 +11,7 @@ export default class CommunityDragonApi {
   constructor() {
     this.getRequest = this.getRequest.bind(this);
     this.listSummonerEmotes = this.listSummonerEmotes.bind(this);
+    this.getSummonerEmoteImageBytes = this.getSummonerEmoteImageBytes.bind(this);
   }
 
   get defaultUri() {

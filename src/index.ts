@@ -13,9 +13,11 @@ logger.tag('Core', 'blue', 'bold');
 
 const program = (new Command())
   .option('-d, --diff', "compare data and generate JSON diff files")
+  .option('-g, --get', "get and download data images associated with metadata")
   .requiredOption('-p, --path <path>', "output path for folders and files");
 program.parse();
-const { diff, path } = program.opts();
+const { diff, path, get } = program.opts();
+console.log(program.opts());
 
 let folderPath = path;
 if (!fpath.isAbsolute(path)) folderPath = fpath.resolve(path);
@@ -38,10 +40,12 @@ const hallowedEmotes = Array
 
 const filePath = "hallowed-summoner-emotes.json";
 let isUpdated = false;
-if (diff) isUpdated = await compareAndDiff(hallowedEmotes, filePath, path.emotes);
+if (diff) isUpdated = await compareAndDiff(hallowedEmotes, filePath, paths.emotes);
 
 const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
 await fs.writeFile(fpath.join(paths.emotes, filePath), serializedEmotes);
+
+if (get) await downloadDataImages(api, hallowedEmotes, paths.emotes);
 
 // 0  - success, no updates
 // 100 - success, data updated
@@ -95,17 +99,40 @@ async function useHallowedSummonerEmoteMap(localeMap: Map<any, any>) {
 async function compareAndDiff(hallowedEmotes: HallowedSummonerEmote[], filePath: string, folderPath: string): Promise<boolean> {
   let isUpdated = false;
   try {
-    const previousHallowedEmotes = JSON.parse(await fs.readFile(filePath, "utf8"));
+    const previousPath = fpath.join(folderPath, filePath);
+    const previousFile = await fs.readFile(previousPath, "utf8");
+    const previousHallowedEmotes = JSON.parse(previousFile);
     logger.log("Comparing differences. This may take a while...");
     const diff = jsonDiff.diff(previousHallowedEmotes, hallowedEmotes);
     if (diff != null) {
       const unixTimestamp = Date.now() / 1000;
-      const diffPath = path.join(folderPath, `${unixTimestamp}-diff-${filePath}`);
+      const diffPath = fpath.join(folderPath, `${unixTimestamp}-diff-${filePath}`);
       logger.log("Writing diff file as changes were detected...");
       fs.writeFile(diffPath, JSON.stringify(diff));
       isUpdated = true;
     } else { logger.log("No changes were detected..."); }
-  } catch (e: any) { logger.log("No emotes file was found to compare with...")}
+  } catch (e: any) { 
+    logger.log("No emotes file was found to compare with...");
+  }
 
   return isUpdated;
+}
+
+/**
+ * Download data images from CommunityDragon.
+ * @param hallowedEmotes 
+ * @param folderPath 
+ */
+async function downloadDataImages(api: CommunityDragonApi, hallowedEmotes: HallowedSummonerEmote[], folderPath: string) {
+  for (const emote of hallowedEmotes) {
+    const imagePath = fpath.join(folderPath, emote.filename);
+
+    if (emote.filename === "") continue;
+    const fileExists = async (filePath: string) => !!(await fs.stat(filePath).catch(e => false));
+    if (await fileExists(imagePath)) continue;
+
+    const imageBytes = await api.getSummonerEmoteImageBytes(emote.uri);
+    logger.log(`Writing file ${emote.filename}...`);
+    fs.writeFile(fpath.join(folderPath, emote.filename), imageBytes);
+  }
 }
