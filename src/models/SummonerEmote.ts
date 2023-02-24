@@ -2,7 +2,7 @@
  * Represents a raw summoner emote metadata object fetched from CommunityDragon e.g.
  * https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-emotes.json
  */
-export default class SummonerEmote {
+export class SummonerEmote {
   id: number;
   name: string;
   inventoryIcon: string;

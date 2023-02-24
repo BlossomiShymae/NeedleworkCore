@@ -3,8 +3,7 @@ import jsonDiff from "json-diff";
 
 import CommunityDragonApi from "./CommunityDragonApi";
 import LocaleIdentifiers from "./LocaleIdentifiers";
-import HallowedSummonerEmote from "./HallowedSummonerEmote";
-import SummonerEmote from './SummonerEmote';
+import { HallowedSummonerEmote, SummonerEmote } from "./models";
 
 console.log("Processing...");
 
@@ -63,5 +62,5 @@ const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
 await fs.writeFile(path, serializedEmotes);
 
 // 0  - success, no updates
-// 10 - success, data updated
+// 100 - success, data updated
 process.exit(!isUpdated ? 0 : 100);

@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { ResponseType } from "axios";
-import SummonerEmote from "./SummonerEmote";
+import { SummonerEmote } from "./models";
 
 /**
  * An API for fetching data from CommunityDragon.
