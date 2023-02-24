@@ -41,7 +41,6 @@ export default class SummonerEmote {
     const subsplit = split[0].replace("_", "").split("/").filter(x => x);
 
     const categories = [];
-    console.log(subsplit);
     for (const category of subsplit) {
       if (!category.includes(".png")) {
         const regex = /(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])/;
@@ -49,7 +48,6 @@ export default class SummonerEmote {
         if (formatted != null) categories.push(formatted[0]);
       }
     }
-    console.log(categories);
 
     return categories;
   }
