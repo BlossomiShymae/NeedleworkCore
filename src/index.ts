@@ -11,45 +11,76 @@ const program = (new Command())
 program.parse();
 const { diff } = program.opts();
 
-const api = new CommunityDragonApi();
-const localeMap = new Map();
-
-// Get all summoner-emotes.json files from CommunityDragon
 console.info("Getting summoner emote metadatas from CommunityDragon...");
-for (const locale of Object.values(LocaleIdentifiers)) {
-  const emotes = await api.listSummonerEmotes(locale);
-  localeMap.set(locale, emotes);
-}
+const api = new CommunityDragonApi();
+const localeMap = await useLocaleMap(api);
 
-// Generate hallowed summoner emotes
 console.info("Processing hallowed summoner emotes...");
-const hallowedSummonerEmoteMap = new Map<number, HallowedSummonerEmote>();
-for (const [key, value] of localeMap) {
-  const emotes = value as SummonerEmote[];
-  for (const emote of emotes) {
-    // Get hallowed emote
-    let hallowedEmote = hallowedSummonerEmoteMap.get(emote.id);
-    if (hallowedEmote == null) hallowedEmote = HallowedSummonerEmote.fromSummonerEmote(emote);
+const hallowedSummonerEmoteMap = await useHallowedSummonerEmoteMap(localeMap);
 
-    // Set translatable meta information
-    hallowedEmote.translations[key] = { 
-      description: emote.description,
-      name: emote.name
-    };
-
-    // Put hallowed emote back into map
-    hallowedSummonerEmoteMap.set(emote.id, hallowedEmote);
-  }
-}
-
-// Compare, difference, and serialize hallowed summoner emotes
 console.info("Preparing to serialize hallowed summoner emotes...");
 const hallowedEmotes = Array
   .from(hallowedSummonerEmoteMap, ([name, value]) => value)
   .sort((a, b) => a.id - b.id);
+
 const path = "hallowed-summoner-emotes.json";
 let isUpdated = false;
-if (diff) {
+if (diff) isUpdated = await compareAndDiff(hallowedEmotes, path);
+
+const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
+await fs.writeFile(path, serializedEmotes);
+
+// 0  - success, no updates
+// 100 - success, data updated
+process.exit(!isUpdated ? 0 : 100);
+
+/**
+ * Get all summoner-emotes.json files from CommunityDragon
+ */
+async function useLocaleMap(api: CommunityDragonApi) {
+  const localeMap = new Map();
+  for (const locale of Object.values(LocaleIdentifiers)) {
+    const emotes = await api.listSummonerEmotes(locale);
+    localeMap.set(locale, emotes);
+  }
+
+  return localeMap;
+}
+
+/**
+ * Use hallowed summoner emote map with locales
+ * @param localeMap 
+ */
+async function useHallowedSummonerEmoteMap(localeMap: Map<any, any>) {
+  const hallowedSummonerEmoteMap = new Map<number, HallowedSummonerEmote>();
+  for (const [key, value] of localeMap) {
+    const emotes = value as SummonerEmote[];
+    for (const emote of emotes) {
+      // Get hallowed emote
+      let hallowedEmote = hallowedSummonerEmoteMap.get(emote.id);
+      if (hallowedEmote == null) hallowedEmote = HallowedSummonerEmote.fromSummonerEmote(emote);
+
+      // Set translatable meta information
+      hallowedEmote.translations[key] = { 
+        description: emote.description,
+        name: emote.name
+      };
+
+      // Put hallowed emote back into map
+      hallowedSummonerEmoteMap.set(emote.id, hallowedEmote);
+    }
+  }
+
+  return hallowedSummonerEmoteMap;
+}
+
+/**
+ * Compare, difference, and serialize changes in hallowed summoner emotes
+ * @param hallowedEmotes 
+ * @param path 
+ */
+async function compareAndDiff(hallowedEmotes: HallowedSummonerEmote[], path: string): Promise<boolean> {
+  let isUpdated = false;
   try {
     const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
     console.warn("Comparing differences. This may take a while...");
@@ -62,11 +93,6 @@ if (diff) {
       isUpdated = true;
     } else { console.info("No changes were detected..."); }
   } catch (e: any) { console.info("No emotes file was found to compare with...")}
+
+  return isUpdated;
 }
-
-const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
-await fs.writeFile(path, serializedEmotes);
-
-// 0  - success, no updates
-// 100 - success, data updated
-process.exit(!isUpdated ? 0 : 100);
