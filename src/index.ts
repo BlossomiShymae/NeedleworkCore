@@ -45,6 +45,7 @@ const hallowedEmotes = Array
   .from(hallowedSummonerEmoteMap, ([name, value]) => value)
   .sort((a, b) => a.id - b.id);
 const path = "hallowed-summoner-emotes.json";
+let isUpdated = false;
 try {
   const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
   console.warn("Comparing differences. This may take a while...");
@@ -54,8 +55,13 @@ try {
     const diffPath = `${unixTimestamp}-diff-${path}`;
     console.info("Writing diff file as changes were detected...");
     fs.writeFile(diffPath, JSON.stringify(diff));
+    isUpdated = true;
   } else { console.info("No changes were detected..."); }
 } catch (e: any) { console.info("No emotes file was found to compare with...")}
 
 const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
 await fs.writeFile(path, serializedEmotes);
+
+// 0  - success, no updates
+// 10 - success, data updated
+process.exit(!isUpdated ? 0 : 10);
