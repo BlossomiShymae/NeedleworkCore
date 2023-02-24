@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import fs from "fs/promises";
+import fpath from "path";
 import jsonDiff from "json-diff";
 import { createLogger } from "@cuppachino/logger";
 
@@ -11,9 +12,17 @@ const logger = createLogger("Needlework");
 logger.tag('Core', 'blue', 'bold');
 
 const program = (new Command())
-  .option('-d, --diff', "compare data and generate JSON diff files");
+  .option('-d, --diff', "compare data and generate JSON diff files")
+  .requiredOption('-p, --path <path>', "output path for folders and files");
 program.parse();
-const { diff } = program.opts();
+const { diff, path } = program.opts();
+
+let folderPath = path;
+if (!fpath.isAbsolute(path)) folderPath = fpath.resolve(path);
+const paths = {
+  emotes: fpath.join(folderPath, "/Emotes")
+};
+for (const dir of Object.values(paths)) fs.mkdir(dir, { recursive: true });
 
 logger.log("Getting summoner emote metadatas from CommunityDragon...");
 const api = new CommunityDragonApi();
@@ -27,12 +36,12 @@ const hallowedEmotes = Array
   .from(hallowedSummonerEmoteMap, ([name, value]) => value)
   .sort((a, b) => a.id - b.id);
 
-const path = "hallowed-summoner-emotes.json";
+const filePath = "hallowed-summoner-emotes.json";
 let isUpdated = false;
-if (diff) isUpdated = await compareAndDiff(hallowedEmotes, path);
+if (diff) isUpdated = await compareAndDiff(hallowedEmotes, filePath, path.emotes);
 
 const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
-await fs.writeFile(path, serializedEmotes);
+await fs.writeFile(fpath.join(paths.emotes, filePath), serializedEmotes);
 
 // 0  - success, no updates
 // 100 - success, data updated
@@ -81,17 +90,17 @@ async function useHallowedSummonerEmoteMap(localeMap: Map<any, any>) {
 /**
  * Compare, difference, and serialize changes in hallowed summoner emotes
  * @param hallowedEmotes 
- * @param path 
+ * @param filePath 
  */
-async function compareAndDiff(hallowedEmotes: HallowedSummonerEmote[], path: string): Promise<boolean> {
+async function compareAndDiff(hallowedEmotes: HallowedSummonerEmote[], filePath: string, folderPath: string): Promise<boolean> {
   let isUpdated = false;
   try {
-    const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
+    const previousHallowedEmotes = JSON.parse(await fs.readFile(filePath, "utf8"));
     logger.log("Comparing differences. This may take a while...");
     const diff = jsonDiff.diff(previousHallowedEmotes, hallowedEmotes);
     if (diff != null) {
       const unixTimestamp = Date.now() / 1000;
-      const diffPath = `${unixTimestamp}-diff-${path}`;
+      const diffPath = path.join(folderPath, `${unixTimestamp}-diff-${filePath}`);
       logger.log("Writing diff file as changes were detected...");
       fs.writeFile(diffPath, JSON.stringify(diff));
       isUpdated = true;
