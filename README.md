@@ -5,8 +5,8 @@ Currently only processes emote metadatas. owo
 Integral part of a project not yet released.
 
 ## Requirements
-- Git
-- Node
+    - Git
+    - Node
 
 ## Options
 ```shell
