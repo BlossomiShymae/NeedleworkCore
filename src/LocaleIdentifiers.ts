@@ -1,3 +1,7 @@
+/**
+ * Locale identifiers that are available on CommunityDragon for rcp-be-lol-game-data.
+ * https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/
+ */
 const LocaleIdentifiers = {
   csCZ: "cs_cz",
   deDE: "de_de",
