@@ -1,5 +1,9 @@
 import SummonerEmote from './SummonerEmote';
 
+/**
+ * Represents a serialized form of summoner emote metadata with additional information.
+ * Includes translations for i18n.
+ */
 export default class HallowedSummonerEmote {
   id: number;
   inventoryIcon: string;
