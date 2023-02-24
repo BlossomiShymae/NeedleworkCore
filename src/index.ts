@@ -64,4 +64,4 @@ await fs.writeFile(path, serializedEmotes);
 
 // 0  - success, no updates
 // 10 - success, data updated
-process.exit(!isUpdated ? 0 : 10);
+process.exit(!isUpdated ? 0 : 100);
