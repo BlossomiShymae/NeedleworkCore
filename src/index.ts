@@ -1,24 +1,28 @@
 import { Command } from "commander";
 import fs from "fs/promises";
 import jsonDiff from "json-diff";
+import { createLogger } from "@cuppachino/logger";
 
 import CommunityDragonApi from "./CommunityDragonApi";
 import LocaleIdentifiers from "./LocaleIdentifiers";
 import { HallowedSummonerEmote, SummonerEmote } from "./models";
+
+const logger = createLogger("Needlework");
+logger.tag('Core', 'blue', 'bold');
 
 const program = (new Command())
   .option('-d, --diff', "compare data and generate JSON diff files");
 program.parse();
 const { diff } = program.opts();
 
-console.info("Getting summoner emote metadatas from CommunityDragon...");
+logger.log("Getting summoner emote metadatas from CommunityDragon...");
 const api = new CommunityDragonApi();
 const localeMap = await useLocaleMap(api);
 
-console.info("Processing hallowed summoner emotes...");
+logger.log("Processing hallowed summoner emotes...");
 const hallowedSummonerEmoteMap = await useHallowedSummonerEmoteMap(localeMap);
 
-console.info("Preparing to serialize hallowed summoner emotes...");
+logger.log("Preparing to serialize hallowed summoner emotes...");
 const hallowedEmotes = Array
   .from(hallowedSummonerEmoteMap, ([name, value]) => value)
   .sort((a, b) => a.id - b.id);
@@ -83,16 +87,16 @@ async function compareAndDiff(hallowedEmotes: HallowedSummonerEmote[], path: str
   let isUpdated = false;
   try {
     const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
-    console.warn("Comparing differences. This may take a while...");
+    logger.log("Comparing differences. This may take a while...");
     const diff = jsonDiff.diff(previousHallowedEmotes, hallowedEmotes);
     if (diff != null) {
       const unixTimestamp = Date.now() / 1000;
       const diffPath = `${unixTimestamp}-diff-${path}`;
-      console.info("Writing diff file as changes were detected...");
+      logger.log("Writing diff file as changes were detected...");
       fs.writeFile(diffPath, JSON.stringify(diff));
       isUpdated = true;
-    } else { console.info("No changes were detected..."); }
-  } catch (e: any) { console.info("No emotes file was found to compare with...")}
+    } else { logger.log("No changes were detected..."); }
+  } catch (e: any) { logger.log("No emotes file was found to compare with...")}
 
   return isUpdated;
 }
