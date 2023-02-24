@@ -1,3 +1,4 @@
+import { Command } from "commander";
 import fs from "fs/promises";
 import jsonDiff from "json-diff";
 
@@ -5,7 +6,10 @@ import CommunityDragonApi from "./CommunityDragonApi";
 import LocaleIdentifiers from "./LocaleIdentifiers";
 import { HallowedSummonerEmote, SummonerEmote } from "./models";
 
-console.log("Processing...");
+const program = (new Command())
+  .option('-d, --diff', "compare data and generate JSON diff files");
+program.parse();
+const { diff } = program.opts();
 
 const api = new CommunityDragonApi();
 const localeMap = new Map();
@@ -45,18 +49,20 @@ const hallowedEmotes = Array
   .sort((a, b) => a.id - b.id);
 const path = "hallowed-summoner-emotes.json";
 let isUpdated = false;
-try {
-  const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
-  console.warn("Comparing differences. This may take a while...");
-  const diff = jsonDiff.diff(previousHallowedEmotes, hallowedEmotes);
-  if (diff != null) {
-    const unixTimestamp = Date.now() / 1000;
-    const diffPath = `${unixTimestamp}-diff-${path}`;
-    console.info("Writing diff file as changes were detected...");
-    fs.writeFile(diffPath, JSON.stringify(diff));
-    isUpdated = true;
-  } else { console.info("No changes were detected..."); }
-} catch (e: any) { console.info("No emotes file was found to compare with...")}
+if (diff) {
+  try {
+    const previousHallowedEmotes = JSON.parse(await fs.readFile(path, "utf8"));
+    console.warn("Comparing differences. This may take a while...");
+    const diff = jsonDiff.diff(previousHallowedEmotes, hallowedEmotes);
+    if (diff != null) {
+      const unixTimestamp = Date.now() / 1000;
+      const diffPath = `${unixTimestamp}-diff-${path}`;
+      console.info("Writing diff file as changes were detected...");
+      fs.writeFile(diffPath, JSON.stringify(diff));
+      isUpdated = true;
+    } else { console.info("No changes were detected..."); }
+  } catch (e: any) { console.info("No emotes file was found to compare with...")}
+}
 
 const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
 await fs.writeFile(path, serializedEmotes);
