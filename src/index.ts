@@ -43,6 +43,7 @@ let isUpdated = false;
 if (diff) isUpdated = await compareAndDiff(hallowedEmotes, filePath, paths.emotes);
 
 const serializedEmotes = JSON.stringify(hallowedEmotes, null, 2);
+if (!(await fileExists(fpath.join(paths.emotes, filePath)))) isUpdated = true;
 await fs.writeFile(fpath.join(paths.emotes, filePath), serializedEmotes);
 
 if (get) await downloadDataImages(api, hallowedEmotes, paths.emotes);
@@ -128,11 +129,14 @@ async function downloadDataImages(api: CommunityDragonApi, hallowedEmotes: Hallo
     const imagePath = fpath.join(folderPath, emote.filename);
 
     if (emote.filename === "") continue;
-    const fileExists = async (filePath: string) => !!(await fs.stat(filePath).catch(e => false));
     if (await fileExists(imagePath)) continue;
 
     const imageBytes = await api.getSummonerEmoteImageBytes(emote.uri);
     logger.log(`Writing file ${emote.filename}...`);
     fs.writeFile(fpath.join(folderPath, emote.filename), imageBytes);
   }
+}
+
+async function fileExists(filePath: string) {
+  return !!(await fs.stat(filePath).catch(e => false));
 }
