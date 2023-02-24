@@ -6,14 +6,14 @@ export default class SummonerEmote {
 
   constructor({
     id, name, inventoryIcon, description
-  }: IEmoteData) {
+  }: ISummonerEmoteProps) {
     this.id = id;
     this.name = name;
     this.inventoryIcon = inventoryIcon;
     this.description = description;
   }
 
-  static fromJson(data: IEmoteData) {
+  static fromJson(data: ISummonerEmoteProps) {
     if (data == null) throw new Error("data must be defined");
 
     const emote = new SummonerEmote(data);
@@ -65,7 +65,7 @@ export default class SummonerEmote {
   }
 }
 
-interface IEmoteData {
+interface ISummonerEmoteProps {
   id: number;
   name: string;
   inventoryIcon: string;
