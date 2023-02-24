@@ -31,17 +31,21 @@ export default class SummonerEmote {
   }
 
   get categories() {
-    const split = this.uri.split("/assets/loadouts/summoneremotes/");
+    if (!this.isIcon) return [];
+
+    const split = this.inventoryIcon.split("/lol-game-data/assets/ASSETS/Loadouts/SummonerEmotes/").filter(x => x);
     const subsplit = split[0].replace("_", "").split("/").filter(x => x);
 
     const categories = [];
+    console.log(subsplit);
     for (const category of subsplit) {
       if (!category.includes(".png")) {
-        const regex = new RegExp("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
-        const formatted = category.match(regex);
+        const regex = /(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])/;
+        const formatted = category.split(regex);
         if (formatted != null) categories.push(formatted[0]);
       }
     }
+    console.log(categories);
 
     return categories;
   }
@@ -57,7 +61,7 @@ export default class SummonerEmote {
   }
 
   get isIcon() {
-    return this.uri == null || this.uri == "" ? false : true;
+    return this.uri == null || this.uri == "" || this.uri == "/" ? false : true;
   }
 }
 
