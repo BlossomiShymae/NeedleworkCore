@@ -1,7 +1,7 @@
 {
   "name": "needlework-core",
   "version": "1.0.0",
-  "description": "",
+  "description": "CommunityDragon metadata processor script",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/BlossomiShymae/NeedleworkCore.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "BlossomiShymae",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/BlossomiShymae/NeedleworkCore/issues"
   },
