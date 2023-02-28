@@ -14,7 +14,7 @@ app.HelpOption();
 
 var diff = app.Option("-d|--diff", "Compare data and generate JSON diff files.", CommandOptionType.NoValue);
 var get = app.Option("-g|--get", "Download data images associated with metadata.", CommandOptionType.NoValue);
-var path = app.Option("-p|--path <path>", "Output path for files and folders.", CommandOptionType.SingleValue);
+var path = app.Option("-p|--path <path>", "Output path for files and folders. Current working path will be used as default.", CommandOptionType.SingleValue);
 path.DefaultValue = string.Empty;
 
 app.OnExecuteAsync(async cancellationToken =>

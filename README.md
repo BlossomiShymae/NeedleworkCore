@@ -1,25 +1,23 @@
-# 🪡 NeedleworkCore - CD Metadata Processor
-A command-line script that downloads and processes metadata from CommunityDragon.
-Currently only processes emote metadatas. owo
+# 🪡 NeedleworkCore - CommunityDragon Metadata Processor
+A command-line executable that downloads and processes metadata from CommunityDragon.
+For now, only emote metadatas are processed! ✧˚ ༘ ⋆｡˚
 
 Integral part of a project not yet released.
 
 ## Requirements
-    - Git
-    - Node
+    - .NET 7
 
 ## Options
 ```shell
--d, --diff        # compare processed metadata and generate JSON diff files
--g, --get         # get and download data images associated with metadata
--p, --path <path> # base output path for folders and files (REQUIRED)
+-d|--diff        # Compare data and generate JSON diff files.
+-g|--get         # Download data images associated with metadata.
+-p|--path <path> # Output path for files and folders. Current working path will be used as default.
 ```
 
-## Usage
+## Usage (development)
 ```shell
 > git clone https://github.com/BlossomiShymae/NeedleworkCore.git
 
-> npm i
-
-> npm run start -- --diff --get --path "."
+# Run. Generate JSON diff files if updated. Download data images if not already.
+> dotnet run -- -dg
 ```
