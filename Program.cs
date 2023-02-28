@@ -19,13 +19,16 @@ path.DefaultValue = string.Empty;
 
 app.OnExecuteAsync(async cancellationToken =>
 {
-    await Main();
-    return 0;
+    // Exit codes
+    // 0   - success
+    // 100 - success, updated data
+    var exitCode = await Main();
+    return exitCode;
 });
 
 return app.Execute(args);
 
-async Task Main()
+async Task<int> Main()
 {
     var summonerEmoteService = new SummonerEmoteService();
     var localeIdentifierMapper = new LocaleIdentifierMapper();
@@ -83,6 +86,7 @@ async Task Main()
     Directory.CreateDirectory(GetEmotesPath(""));
     var jsonPath = GetEmotesPath("hallowed-summoner-emotes.json");
 
+    var isUpdated = false;
     if (IsOptionSet(diff))
     {
         string? oldEmoteJson = null;
@@ -99,10 +103,17 @@ async Task Main()
                 var diffFilePath = GetEmotesPath($"{unixTimestamp}-diff-hallowed-summoner-emotes.json");
                 Console.WriteLine($"Writing diff file to {diffFilePath}");
                 await File.WriteAllTextAsync(diffFilePath, output);
+                isUpdated = true;
             }
         }
     }
-    await File.WriteAllTextAsync(GetEmotesPath("hallowed-summoner-emotes.json"), currentEmoteJson);
+
+    if (isUpdated || !File.Exists(jsonPath))
+    {
+        await File.WriteAllTextAsync(GetEmotesPath("hallowed-summoner-emotes.json"), currentEmoteJson);
+        return 100;
+    }
+    return 0;
 }
 
 bool IsOptionSet(CommandOption option)

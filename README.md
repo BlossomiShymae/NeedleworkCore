@@ -14,6 +14,10 @@ Integral part of a project not yet released.
 -p|--path <path> # Output path for files and folders. Current working path will be used as default.
 ```
 
+## Exit Codes
+    - 0,    success
+    - 100,  success, updated data
+
 ## Usage (development)
 ```shell
 > git clone https://github.com/BlossomiShymae/NeedleworkCore.git
