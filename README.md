@@ -1,6 +1,6 @@
 # 🪡 NeedleworkCore - CommunityDragon Metadata Processor
 A command-line executable that downloads and processes metadata from CommunityDragon.
-For now, only emote metadatas are processed! ✧˚ ༘ ⋆｡˚
+For now, only emote metadatas are processed! (❀❛ ֊ ❛„) ♡ ✧˚ ༘ ⋆｡˚
 
 Integral part of a project not yet released.
 
