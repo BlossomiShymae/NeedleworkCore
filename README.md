@@ -6,6 +6,9 @@ Integral part of a project not yet released.
 
 ## Requirements
     - .NET 7
+    
+## Documentation
+-WIP-
 
 ## Options
 ```shell
