@@ -11,6 +11,8 @@
     <SelfContained>false</SelfContained>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishDir>dist</PublishDir>
+
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

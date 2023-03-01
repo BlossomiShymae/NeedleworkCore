@@ -1,5 +1,7 @@
 ﻿
 using System.Data;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using JsonDiffPatchDotNet;
@@ -11,6 +13,11 @@ using Services;
 var app = new CommandLineApplication();
 
 app.HelpOption();
+
+var assembly = Assembly.GetExecutingAssembly();
+app.ExtendedHelpText = $@"
+{assembly.GetName().Name} {assembly.GetName().Version}
+";
 
 var diff = app.Option("-d|--diff", "Compare data and generate JSON diff files.", CommandOptionType.NoValue);
 var get = app.Option("-g|--get", "Download data images associated with metadata.", CommandOptionType.NoValue);
